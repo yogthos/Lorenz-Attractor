@@ -85,7 +85,8 @@
     ;;main loop
     (loop [lorenz [{:color Color/RED :value [0.0, 20.0 25.0]}
                    {:color Color/BLUE :value [0.1, 21.0 23.0]}
-                   {:color Color/GREEN :value [0.3, 18.0 12.0]}]]
+                   {:color Color/WHITE :value [0.1, 15.0 12.0]}
+                   {:color Color/GREEN :value [0.2, 18.0 23.0]}]]
             
         (draw-lorenz canvas renderer lorenz)
         (recur (map #(update dt %)  lorenz)))        
