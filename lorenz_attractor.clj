@@ -33,20 +33,14 @@
 (defn get-renderer [width height xscale yscale]
   (let [[x1 x2] xscale
         [y1 y2] yscale
-        xsize (* (- x2 x1) 0.05)
-        ysize (* (- y2 y1) 0.05)
-        xmin (- x1 xsize)
-        xmax (+ x2 xsize)
-        ymin (- y1 ysize)
-        ymax (+ y2 ysize)
-        dx (- xmax xmin)
-        dy (- ymax ymin)]
+        dx (- x2 x1)
+        dy (- y2 y1)]
     
     (defn scale-x [x] 
-      (/  (* width (- x xmin)) dx))
+      (/  (* width (- x x1)) dx))
 
     (defn scale-y [y]      
-      (/ (* height (- ymax y)) dy))
+      (/ (* height (- y2 y)) dy))
     
     ;;renderer
     (fn [g point]
