@@ -23,6 +23,9 @@
         g      (.getDrawGraphics buffer)]
     
     (try
+      (doto g
+        (.setColor Color/BLACK)
+        (.fillRect 0 0 (.getWidth canvas) (.getHeight canvas)))
       (draw-fn g)      
       (finally (.dispose g)))
     
@@ -81,7 +84,8 @@
     
     ;;main loop
     (loop [lorenz [{:color Color/RED :value [0.0, 20.0 25.0]}
-                   {:color Color/BLUE :value [0.1, 21.0 23.0]}]]
+                   {:color Color/BLUE :value [0.1, 21.0 23.0]}
+                   {:color Color/GREEN :value [0.3, 18.0 12.0]}]]
             
         (draw-lorenz canvas renderer lorenz)
         (recur (map #(update dt %)  lorenz)))        
