@@ -9,12 +9,12 @@
     (let [[x y z] (:value lorenz)
           dx (* (- prandtl) (- x y))
           dy (- (+ (- (* rayleigh x) (* x z))) y)
-          dz (- (* x y) (* beta (/ z 3)))]
+          dz (- (* x y) (* beta z))]
       (assoc lorenz 
         :value        
-        [(+ x (* dt dx))  
-         (+ y (* dt dy)) 
-         (+ z (* dt dz))]))
+        [(double (+ x (* dt dx)))  
+         (double (+ y (* dt dy))) 
+         (double (+ z (* dt dz)))]))
     ))
 
 ;;;;;;;UI;;;;;;;;; 
@@ -47,10 +47,9 @@
     
     ;;renderer
     (fn [g point]
-      (let [[x z y] (:value point)
+      (let [[x r y] (:value point)
             xs (scale-x x)
             ys (scale-y y)
-            r z
             r2 (/ r 2)]
         (.setColor g (:color point))        
         (if (> r 1)
@@ -68,8 +67,8 @@
         frame  (JFrame. "Lorenz Attractor")
         canvas (Canvas.)
         renderer (get-renderer width height [-25, 25], [0, 50])
-        update (get-update-fn 10, 28, 8)
-        dt 0.001]
+        update (get-update-fn 10, 28, (/ 8 3))
+        dt 0.01]
     (doto frame
       (.setSize width height)
       (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
@@ -83,13 +82,17 @@
       (.requestFocus))
     
     ;;main loop
-    (loop [lorenz [{:color Color/RED :value [0.0, 20.0 25.0]}
-                   {:color Color/BLUE :value [0.1, 21.0 23.0]}
-                   {:color Color/WHITE :value [0.1, 15.0 12.0]}
-                   {:color Color/GREEN :value [0.2, 18.0 23.0]}]]
-            
-        (draw-lorenz canvas renderer lorenz)
-        (recur (map #(update dt %)  lorenz)))        
+    (loop [lorenz [{:color Color/RED :value [0.0, 20.0, 20.0]}
+                   {:color Color/BLUE :value [0.3, 23.0 23.0]}
+                   {:color Color/WHITE :value [0.6, 26.0 26.0]}
+                   {:color Color/GREEN :value [0.9, 29.0 29.0]}
+                   {:color Color/PINK :value [1.2, 32.0 32.0]}
+                   {:color Color/MAGENTA :value [1.5, 35.0 35.0]}
+                   {:color Color/YELLOW :value [1.8, 38.0 38.0]}
+                   ]]
+      (Thread/sleep 20)   
+      (draw-lorenz canvas renderer lorenz)
+      (recur (map #(update dt %)  lorenz)))        
     ))    
 
 (-main 500 500)
