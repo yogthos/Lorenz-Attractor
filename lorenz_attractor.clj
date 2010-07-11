@@ -19,7 +19,7 @@
 
 ;;;;;;;UI;;;;;;;;; 
 (defn draw [#^Canvas canvas draw-fn]
-  (let [buffer  (.getBufferStrategy canvas)
+  (let [buffer (.getBufferStrategy canvas)
         g      (.getDrawGraphics buffer)]
     
     (try
@@ -38,18 +38,12 @@
         [y1 y2] yscale
         dx (- x2 x1)
         dy (- y2 y1)]
-    
-    (defn scale-x [x] 
-      (/  (* width (- x x1)) dx))
 
-    (defn scale-y [y]      
-      (/ (* height (- y2 y)) dy))
-    
     ;;renderer
     (fn [g point]
       (let [[x r y] (:value point)
-            xs (scale-x x)
-            ys (scale-y y)
+            xs (/  (* width (- x x1)) dx)
+            ys (/ (* height (- y2 y)) dy)
             r2 (/ r 2)]
         (.setColor g (:color point))        
         (if (> r 1)
