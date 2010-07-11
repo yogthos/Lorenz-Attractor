@@ -3,7 +3,7 @@
     (javax.swing JFrame)
     (java.awt.geom Ellipse2D$Double)
     (java.awt Canvas Color Toolkit)))
-        
+     
 (defn get-update-fn [prandtl, rayleigh, beta]
   (fn [dt, lorenz]
     (let [[x y z] (:value lorenz)
@@ -14,8 +14,8 @@
         :value        
         [(double (+ x (* dt dx)))  
          (double (+ y (* dt dy))) 
-         (double (+ z (* dt dz)))]))
-    ))
+         (double (+ z (* dt dz)))])
+      )))
 
 ;;;;;;;UI;;;;;;;;; 
 (defn draw [#^Canvas canvas draw-fn]
@@ -34,16 +34,16 @@
     (.. Toolkit (getDefaultToolkit) (sync))))
 
 (defn get-renderer [width height xscale yscale]
-  (let [[x1 x2] xscale
-        [y1 y2] yscale
-        dx (- x2 x1)
-        dy (- y2 y1)]
+  (let [[xmin xmax] xscale
+        [ymin ymax] yscale
+        dx (- xmax xmin)
+        dy (- ymax ymin)]
 
     ;;renderer
     (fn [g point]
       (let [[x r y] (:value point)
-            xs (/  (* width (- x x1)) dx)
-            ys (/ (* height (- y2 y)) dy)
+            xs (/  (* width (- x xmin)) dx)
+            ys (/ (* height (- ymax y)) dy)
             r2 (/ r 2)]
         (.setColor g (:color point))        
         (if (> r 1)
@@ -52,8 +52,7 @@
         ))))
 
 (defn draw-lorenz [canvas renderer lorenz]  
-    (draw 
-      canvas 
+    (draw canvas 
       (fn [g] (doseq [point lorenz] (renderer g point)))))
 
 (defn -main [& args]
@@ -63,6 +62,7 @@
         renderer (get-renderer width height [-25, 25], [0, 50])
         update (get-update-fn 10, 28, (/ 8 3))
         dt 0.01]
+    
     (doto frame
       (.setSize width height)
       (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
@@ -71,19 +71,17 @@
       (.setVisible true))
     
     (doto canvas
-      (.createBufferStrategy 2)      
-      (.setVisible true)
+      (.createBufferStrategy 2)            
       (.requestFocus))
     
     ;;main loop
-    (loop [lorenz [{:color Color/RED :value [0.0, 20.0, 20.0]}
-                   {:color Color/BLUE :value [0.3, 23.0 23.0]}
-                   {:color Color/WHITE :value [0.6, 26.0 26.0]}
-                   {:color Color/GREEN :value [0.9, 29.0 29.0]}
-                   {:color Color/PINK :value [1.2, 32.0 32.0]}
+    (loop [lorenz [{:color Color/RED     :value [0.0, 20.0, 20.0]}
+                   {:color Color/BLUE    :value [0.3, 23.0 23.0]}
+                   {:color Color/WHITE   :value [0.6, 26.0 26.0]}
+                   {:color Color/GREEN   :value [0.9, 29.0 29.0]}
+                   {:color Color/PINK    :value [1.2, 32.0 32.0]}
                    {:color Color/MAGENTA :value [1.5, 35.0 35.0]}
-                   {:color Color/YELLOW :value [1.8, 38.0 38.0]}
-                   ]]
+                   {:color Color/YELLOW  :value [1.8, 38.0 38.0]}]]
       (Thread/sleep 20)   
       (draw-lorenz canvas renderer lorenz)
       (recur (map #(update dt %)  lorenz)))        
