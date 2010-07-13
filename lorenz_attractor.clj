@@ -75,13 +75,11 @@
       (.requestFocus))
     
     ;;main loop
-    (loop [lorenz [{:color Color/RED     :value [0.0, 20.0, 20.0]}
-                   {:color Color/BLUE    :value [0.3, 23.0 23.0]}
-                   {:color Color/WHITE   :value [0.6, 26.0 26.0]}
-                   {:color Color/GREEN   :value [0.9, 29.0 29.0]}
-                   {:color Color/PINK    :value [1.2, 32.0 32.0]}
-                   {:color Color/MAGENTA :value [1.5, 35.0 35.0]}
-                   {:color Color/YELLOW  :value [1.8, 38.0 38.0]}]]
+    (loop [lorenz (take 10
+                    (map (fn [color value] {:color color :value value})
+                         (cycle [Color/RED, Color/BLUE, Color/WHITE, Color/GREEN, Color/YELLOW]) 
+                         (iterate (fn [col] [(rand 30), (rand 30), (rand 30)]) [0.0, 0.0, 0.0])))]
+                      
       (Thread/sleep 20)   
       (draw-lorenz canvas renderer lorenz)
       (recur (map #(update dt %)  lorenz)))        
