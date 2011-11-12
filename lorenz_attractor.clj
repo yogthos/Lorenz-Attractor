@@ -1,4 +1,5 @@
 (ns lorenz-attractor
+  (:use util)
   (:import
     (javax.swing JFrame)
     (java.awt.geom Ellipse2D$Double)
@@ -14,14 +15,12 @@
         :value        
         [(double (+ x (* dt dx)))  
          (double (+ y (* dt dy))) 
-         (double (+ z (* dt dz)))])
-      )))
+         (double (+ z (* dt dz)))]))))
 
 ;;;;;;;UI;;;;;;;;; 
 (defn draw [#^Canvas canvas draw-fn]
   (let [buffer (.getBufferStrategy canvas)
-        g      (.getDrawGraphics buffer)]
-    
+        g      (.getDrawGraphics buffer)]    
     (try
       (doto g
         (.setColor Color/BLACK)
@@ -29,27 +28,23 @@
       (draw-fn g)      
       (finally (.dispose g)))
     
-    (if (not (.contentsLost buffer))
+    (when-not (.contentsLost buffer)
       (. buffer show))
     (.. Toolkit (getDefaultToolkit) (sync))))
 
-(defn get-renderer [width height xscale yscale]
-  (let [[xmin xmax] xscale
-        [ymin ymax] yscale
-        dx (- xmax xmin)
+(defn get-renderer [width height [xmin xmax] [ymin ymax]]
+  (let [dx (- xmax xmin)
         dy (- ymax ymin)]
-
+    
     ;;renderer
-    (fn [g point]
-      (let [[x r y] (:value point)
-            xs (/  (* width (- x xmin)) dx)
+    (fn [g {[x r y] :value, color :color}]
+      (let [xs (/  (* width (- x xmin)) dx)
             ys (/ (* height (- ymax y)) dy)
             r2 (/ r 2)]
-        (.setColor g (:color point))        
+        (.setColor g color)        
         (if (> r 1)
           (.fill g (new Ellipse2D$Double (- xs r2), (- ys r2), r, r))
-          (.fillRect g (Math/round xs) (Math/round ys) 1 1))
-        ))))
+          (.fillRect g (Math/round xs) (Math/round ys) 1 1))))))
 
 (defn draw-lorenz [canvas renderer lorenz]  
     (draw canvas 
@@ -57,11 +52,11 @@
 
 (defn -main [& args]
   (let [[width height] args
-        frame  (JFrame. "Lorenz Attractor")
-        canvas (Canvas.)
-        renderer (get-renderer width height [-25, 25], [0, 50])
-        update (get-update-fn 10, 28, (/ 8 3))
-        dt 0.01]
+        frame          (JFrame. "Lorenz Attractor")
+        canvas         (Canvas.)
+        renderer       (get-renderer width height [-25, 25], [0, 50])
+        update         (get-update-fn 10, 28, (/ 8 3))
+        dt             0.01]
     
     (doto frame
       (.setSize width height)
@@ -75,7 +70,7 @@
       (.requestFocus))
     
     ;;main loop
-    (loop [lorenz (take 10
+    (loop [lorenz (take 30
                     (map (fn [color value] {:color color :value value})
                          (cycle [Color/RED, Color/BLUE, Color/WHITE, Color/GREEN, Color/YELLOW]) 
                          (iterate (fn [col] [(rand 30), (rand 30), (rand 30)]) [0.0, 0.0, 0.0])))]
