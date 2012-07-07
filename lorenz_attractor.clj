@@ -1,5 +1,4 @@
 (ns lorenz-attractor
-  (:use util)
   (:import
     (javax.swing JFrame)
     (java.awt.geom Ellipse2D$Double)
